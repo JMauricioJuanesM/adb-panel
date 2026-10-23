@@ -1,0 +1,13 @@
+"""Paleta de la interfaz."""
+
+BG = "#f3f4f7"
+CARD = "#ffffff"
+BORDER = "#e2e5eb"
+SIDEBAR = "#1e2330"
+SIDEBAR_HI = "#2f3647"
+TEXT = "#1e2330"
+MUTED = "#6b7280"
+ACCENT = "#3867f0"
+GREEN = "#1a7f37"
+RED = "#c62828"
+AMBER = "#b7791f"

@@ -1,0 +1,9 @@
+{
+  "_comentario": "Copia este archivo a ~/.config/adb-panel/defaults.json con tus datos personales (no va en el repositorio). Lo que pongas aquí reemplaza los valores por defecto del código; tu config.json, a su vez, gana sobre esto.",
+  "dns_hostname": "TU-ID.dns.nextdns.io",
+  "dns_servers": [
+    {"name": "Mi NextDNS", "host": "TU-ID.dns.nextdns.io"},
+    {"name": "CleanBrowsing Familia", "host": "family-filter-dns.cleanbrowsing.org"},
+    {"name": "Cloudflare Familia", "host": "family.cloudflare-dns.com"}
+  ]
+}
