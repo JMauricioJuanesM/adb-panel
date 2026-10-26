@@ -91,7 +91,7 @@ class DnsPage:
     def do_dns_off(self):
         if not self.need_device():
             return
-        g = self.gate("Apagar el DNS (filtro de sitios)", temporary=True)
+        g = self.gate("Apagar el DNS (filtro de sitios)", temporary=True, short=True)
         if not g:
             return
         self.add_relock("dns", g["minutes"], "DNS privado")

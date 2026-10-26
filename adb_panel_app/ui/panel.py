@@ -159,9 +159,9 @@ class Panel(HomePage, AppsPage, InstallPage, DnsPage, SettingsPage, DeviceContro
 
         threading.Thread(target=target, daemon=True).start()
 
-    def gate(self, action, temporary=False):
-        """Pide motivo + espera + contraseña. Regresa None si se cancela."""
-        g = Gate(self, action, temporary)
+    def gate(self, action, temporary=False, short=False):
+        """Pide motivo + espera + contraseña. Regresa None si se cancela. `short`: a lo más 15 min."""
+        g = Gate(self, action, temporary, short)
         self.wait_window(g)
         if g.result:
             self.cfg["unlock_log"].append({"ts": dt.datetime.now().strftime("%Y-%m-%d %H:%M"), "action": action,

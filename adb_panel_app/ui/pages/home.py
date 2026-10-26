@@ -142,7 +142,7 @@ class HomePage:
         if on:
             self.clear_relock("applock")
         else:
-            g = self.gate("Apagar el bloqueo de apps de Xiaomi", temporary=True)
+            g = self.gate("Apagar el bloqueo de apps de Xiaomi", temporary=True, short=True)
             if not g:
                 return
             self.add_relock("applock", g["minutes"], "Bloqueo de apps de Xiaomi")

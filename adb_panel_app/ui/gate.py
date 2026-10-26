@@ -14,8 +14,11 @@ class Gate(tk.Toplevel):
     """
 
     DURATIONS = [("15 min", 15), ("30 min", 30), ("1 hora", 60), ("2 horas", 120), ("Hasta que lo reactive", None)]
+    # DNS y bloqueo de Xiaomi: abrirlos es riesgo de recaída; para revisar algo rápido bastan 15 min
+    # (el teléfono también los corta a los 15 min, pida lo que pida el panel).
+    SHORT_DURATIONS = [("5 min", 5), ("10 min", 10), ("15 min", 15)]
 
-    def __init__(self, app, action, temporary):
+    def __init__(self, app, action, temporary, short=False):
         super().__init__(app)
         self.app = app
         self.result = None
@@ -44,12 +47,13 @@ class Gate(tk.Toplevel):
         e.pack(anchor="w", fill="x", pady=(2, 12))
         e.focus_set()
 
+        self.durations = self.SHORT_DURATIONS if short else self.DURATIONS
         self.duration = tk.IntVar(value=1)
         if temporary:
             tk.Label(f, text="¿Por cuánto tiempo?", bg=CARD, fg=TEXT, font=("Sans", 10, "bold")).pack(anchor="w")
             row = tk.Frame(f, bg=CARD)
             row.pack(anchor="w", pady=(2, 12))
-            for i, (label, _) in enumerate(self.DURATIONS):
+            for i, (label, _) in enumerate(self.durations):
                 ttk.Radiobutton(row, text=label, value=i, variable=self.duration).pack(side="left", padx=(0, 8))
         self.temporary = temporary
 
@@ -96,6 +100,6 @@ class Gate(tk.Toplevel):
         if cfg.get("password_hash") and hash_password(self.pw.get(), cfg["password_salt"]) != cfg["password_hash"]:
             messagebox.showerror("Contraseña", "Contraseña incorrecta.", parent=self)
             return
-        minutes = self.DURATIONS[self.duration.get()][1] if self.temporary else None
+        minutes = self.durations[self.duration.get()][1] if self.temporary else None
         self.result = {"minutes": minutes, "reason": self.reason.get().strip()}
         self.destroy()
