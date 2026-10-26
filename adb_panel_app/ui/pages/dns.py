@@ -8,6 +8,15 @@ from ...config import save_config
 from ...theme import BORDER, CARD, GREEN, TEXT
 
 
+# Servidores que filtran sitios para adultos. Cambiar a uno de estos es permanente; a cualquier otro,
+# temporal (como apagar el DNS).
+FILTER_HINTS = ("nextdns.io", "family", "adult-filter", "cleanbrowsing")
+
+
+def is_filter(host):
+    return any(h in host.lower() for h in FILTER_HINTS)
+
+
 class DnsPage:
     def _page_dns(self):
         f = self.page("DNS privado", "El filtro de sitios del teléfono. En verde, el servidor que se usa.")
@@ -71,6 +80,16 @@ class DnsPage:
     def do_dns_use(self):
         s = self.selected_dns()
         if not s or not self.need_device():
+            return
+        if s["host"] != self.cfg["dns_hostname"] and not is_filter(s["host"]):
+            # Un DNS sin filtro es como apagarlo: rato corto, y luego regresa solo a tu filtro.
+            g = self.gate(f"Usar {s['name']} (sin filtro de sitios)", temporary=True, short=True)
+            if not g:
+                return
+            self.add_relock("dns", g["minutes"], f"DNS sin filtro ({s['name']})")
+            host = s["host"]
+            self.run_bg(lambda: (dns_on(host), get_dns())[1],
+                        lambda r: self._dns_done(r, f"DNS sin filtro por {g['minutes']} min: {host}"), "Cambiando DNS…")
             return
         if s["host"] != self.cfg["dns_hostname"]:
             if not self.gate(f"Cambiar el DNS a {s['name']}"):
