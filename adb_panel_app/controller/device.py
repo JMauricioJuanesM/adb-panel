@@ -4,7 +4,7 @@ import time
 
 from ..adb import client
 from ..adb.client import is_wifi, list_devices
-from ..adb.device import enable_wifi_adb, get_applock, get_dns, phone_model, wifi_connect
+from ..adb.device import enable_wifi_adb, get_applock, get_dns, grant_phone_app, phone_model, wifi_connect
 from ..config import save_config
 
 
@@ -56,11 +56,12 @@ class DeviceController:
         apply = self.cfg["auto_apply_on_connect"]
         wifi = usb_new and self.cfg["wifi_auto"]
         usb = self.usb_serial
-        due = [r for r in self.cfg["relocks"] if r["at"] <= time.time()]
+        due = [r for r in self.cfg["relocks"] if r["at"] is not None and r["at"] <= time.time()]
 
         def work():
             msgs = []
             self.state_cache["model"] = phone_model()
+            grant_phone_app()
             if wifi:
                 ok, out, ip = enable_wifi_adb(usb)
                 if ip:

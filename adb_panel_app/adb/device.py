@@ -59,6 +59,16 @@ def set_applock(on):
     return adb("shell", "settings", "put", "secure", "access_control_lock_enabled", "1" if on else "0")
 
 
+POMODORO_PKG = "com.mauriciojuanes.pomodoro"
+
+
+def grant_phone_app():
+    """Deja que la app Pomodoro del teléfono vuelva a encender el DNS y el bloqueo de Xiaomi por su cuenta."""
+    ok, out = adb("shell", "pm", "list", "packages", POMODORO_PKG)
+    if ok and POMODORO_PKG in out:
+        adb("shell", "pm", "grant", POMODORO_PKG, "android.permission.WRITE_SECURE_SETTINGS")
+
+
 def phone_model():
     _, name = adb("shell", "getprop", "ro.product.marketname")
     if not name.strip():

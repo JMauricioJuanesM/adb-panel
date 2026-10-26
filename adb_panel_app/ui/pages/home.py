@@ -44,6 +44,8 @@ class HomePage:
         c = self.card(f, "Desbloqueos temporales")
         self.relock_box = tk.Frame(c, bg=CARD)
         self.relock_box.pack(fill="x")
+        self.phone_lbl = tk.Label(c, text="", bg=CARD, fg=MUTED, justify="left", wraplength=700)
+        self.phone_lbl.pack(anchor="w", pady=(10, 0))
         return f
 
     def render_home(self):
@@ -81,16 +83,34 @@ class HomePage:
         if not self.cfg["relocks"]:
             tk.Label(self.relock_box, text="✔  Ninguno: todo lo que bloqueaste sigue bloqueado.", bg=CARD,
                      fg=GREEN).pack(anchor="w")
-        for r in sorted(self.cfg["relocks"], key=lambda r: r["at"]):
+        for r in sorted(self.cfg["relocks"], key=lambda r: r["at"] or float("inf")):
             row = tk.Frame(self.relock_box, bg=CARD)
             row.pack(fill="x", pady=2)
-            left = max(0, int(r["at"] - time.time())) // 60
-            tk.Label(row, text=f"⏳  {r['label']} — se vuelve a bloquear en {left} min", bg=CARD,
-                     fg=AMBER).pack(side="left")
+            if r["at"] is None:
+                text = f"🔓  {r['label']} — desbloqueado hasta que lo reactives"
+            else:
+                text = f"⏳  {r['label']} — se vuelve a bloquear en {max(0, int(r['at'] - time.time())) // 60} min"
+            tk.Label(row, text=text, bg=CARD, fg=AMBER).pack(side="left")
             ttk.Button(row, text="Bloquear ya", style="Accent.TButton",
                        command=lambda r=r: self.relock_now(r)).pack(side="right")
+        self.phone_lbl.config(text=self.phone_guard_text())
 
         self.render_connection()
+
+    def phone_guard_text(self):
+        """¿El teléfono cumplirá los desbloqueos aunque apagues la compu?"""
+        if not self.sync.enabled:
+            return "Sin sincronización: los desbloqueos solo se revierten con la compu prendida y el panel abierto."
+        if not self.sync.online:
+            return "Sin conexión con el servidor: el teléfono no se ha enterado de los últimos cambios."
+        info = self.sync.phone_info()
+        if not info:
+            return "La app Pomodoro del teléfono no ha reportado: instálala para que cumpla los bloqueos sola."
+        missing = [name for key, name in (("secure", "ajustes seguros"), ("guard", "accesibilidad")) if not info.get(key)]
+        if missing:
+            return (f"📱 A la app del teléfono le falta: {', '.join(missing)}. Conecta el teléfono y se los doy "
+                    "por ADB.")
+        return "📱 El teléfono cumple estos desbloqueos y bloqueos él solo, aunque apagues la compu."
 
     def show_blocked(self):
         self.show_page("apps")
@@ -120,7 +140,7 @@ class HomePage:
         if not self.need_device():
             return
         if on:
-            self.add_relock("applock", None, "")
+            self.clear_relock("applock")
         else:
             g = self.gate("Apagar el bloqueo de apps de Xiaomi", temporary=True)
             if not g:

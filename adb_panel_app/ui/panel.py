@@ -12,6 +12,7 @@ from ..controller.device import DeviceController
 from ..controller.relocks import RelockController
 from ..meta.store import MetaStore
 from ..paths import FILES_META
+from ..sync import BlocksSync
 from ..theme import AMBER, BG, BORDER, CARD, GREEN, MUTED, RED, SIDEBAR, SIDEBAR_HI, TEXT
 from ..utils import short_app_name
 from .gate import Gate
@@ -53,8 +54,14 @@ class Panel(HomePage, AppsPage, InstallPage, DnsPage, SettingsPage, DeviceContro
         apply_styles(self)
         self.placeholder = placeholder_icon()
         self._build()
+        self.sync = BlocksSync(self)
         self.show_page("inicio")
         self.after(200, self.poll_device)
+        self.after(1000, self.sync_tick)
+
+    def sync_tick(self):
+        self.sync.tick()
+        self.after(1000, self.sync_tick)
 
     def _build(self):
         side = tk.Frame(self, bg=SIDEBAR, width=200)

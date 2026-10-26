@@ -84,7 +84,7 @@ class DnsPage:
         if not self.need_device():
             return
         host = self.cfg["dns_hostname"]
-        self.add_relock("dns", None, "")
+        self.clear_relock("dns")
         self.run_bg(lambda: (dns_on(host), get_dns())[1], lambda r: self._dns_done(r, f"DNS encendido: {host}"),
                     "Encendiendo DNS…")
 
