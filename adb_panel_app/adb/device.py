@@ -67,6 +67,7 @@ def grant_phone_app():
     ok, out = adb("shell", "pm", "list", "packages", POMODORO_PKG)
     if ok and POMODORO_PKG in out:
         adb("shell", "pm", "grant", POMODORO_PKG, "android.permission.WRITE_SECURE_SETTINGS")
+        adb("shell", "appops", "set", POMODORO_PKG, "GET_USAGE_STATS", "allow")
 
 
 def phone_model():
